@@ -150,11 +150,14 @@ public abstract class BaseExecutor implements Executor {
     }
     List<E> list;
     try {
+      // 查询栈+1
       queryStack++;
+      // 从一级缓存拿数据
       list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
       if (list != null) {
         handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
       } else {
+        // 一级缓存中没有，从数据库查询 ↓↓↓
         list = queryFromDatabase(ms, parameter, rowBounds, resultHandler, key, boundSql);
       }
     } finally {
@@ -328,12 +331,15 @@ public abstract class BaseExecutor implements Executor {
   private <E> List<E> queryFromDatabase(MappedStatement ms, Object parameter, RowBounds rowBounds,
       ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
     List<E> list;
+    // 先在缓存中占个位置
     localCache.putObject(key, EXECUTION_PLACEHOLDER);
     try {
+      // 从数据库查数据 ↓↓↓ 这里是SimpleExecutor
       list = doQuery(ms, parameter, rowBounds, resultHandler, boundSql);
     } finally {
       localCache.removeObject(key);
     }
+    // 放入真实数据
     localCache.putObject(key, list);
     if (ms.getStatementType() == StatementType.CALLABLE) {
       localOutputParameterCache.putObject(key, parameter);

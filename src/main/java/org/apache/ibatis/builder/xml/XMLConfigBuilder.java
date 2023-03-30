@@ -426,7 +426,7 @@ private void typeAliasesElement(XNode parent) {
       // mapper映射器的写法 package、resource、url、class优先级从高到低
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
-          // 解析package写法mapper，获取到mapper包名
+          // 解析package写法mapper，获取到mapper包名，其他写法类似
           String mapperPackage = child.getStringAttribute("name");
           configuration.addMappers(mapperPackage);
         } else {

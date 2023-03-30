@@ -123,6 +123,7 @@ public class ParamNameResolver {
     if (args == null || paramCount == 0) {
       return null;
     }
+    // 不是注解，并且只是一个参数
     if (!hasParamAnnotation && paramCount == 1) {
       Object value = args[names.firstKey()];
       return wrapToMapIfCollection(value, useActualParamName ? names.get(names.firstKey()) : null);

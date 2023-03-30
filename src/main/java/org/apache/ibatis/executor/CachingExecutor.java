@@ -85,28 +85,37 @@ public class CachingExecutor implements Executor {
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler)
       throws SQLException {
+    // 获取SQL
     BoundSql boundSql = ms.getBoundSql(parameterObject);
+    // 获取缓存 一级缓存
     CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);
+    // ↓↓↓
     return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
 
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler,
       CacheKey key, BoundSql boundSql) throws SQLException {
+    // 获取MappedStatement的缓存，这里是二级缓存
     Cache cache = ms.getCache();
     if (cache != null) {
+      // 刷新缓存，有些缓存时定时刷新
       flushCacheIfRequired(ms);
       if (ms.isUseCache() && resultHandler == null) {
         ensureNoOutParams(ms, boundSql);
         @SuppressWarnings("unchecked")
+        //  有用到缓存，先从二级缓存拿
         List<E> list = (List<E>) tcm.getObject(cache, key);
         if (list == null) {
+          // 二级缓存没有，去一级缓存查询 ↓↓↓ 进入到BaseExecutor
           list = delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
+          // 把结果放回二级缓存
           tcm.putObject(cache, key, list); // issue #578 and #116
         }
         return list;
       }
     }
+    // 没使用二级缓存，直接从一级缓存查
     return delegate.query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
   }
 

@@ -49,13 +49,17 @@ public class MapperMethod {
   private final SqlCommand command;
   private final MethodSignature method;
 
+  // 参数分别是  mapper的class类型，方法，Configuration
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
+    // 进去看看SqlCommand的构造干了啥 ↓↓↓
     this.command = new SqlCommand(config, mapperInterface, method);
+    // 构造方法签名  回头来看看
     this.method = new MethodSignature(config, mapperInterface, method);
   }
-
+  // args是mapper方法的参数
   public Object execute(SqlSession sqlSession, Object[] args) {
     Object result;
+    // case增删改查类型
     switch (command.getType()) {
       case INSERT: {
         Object param = method.convertArgsToSqlCommandParam(args);
@@ -73,17 +77,22 @@ public class MapperMethod {
         break;
       }
       case SELECT:
+        // 先看看select
+        // 没有返回值
         if (method.returnsVoid() && method.hasResultHandler()) {
           executeWithResultHandler(sqlSession, args);
           result = null;
-        } else if (method.returnsMany()) {
+        } else if (method.returnsMany()) {// 返回多个
           result = executeForMany(sqlSession, args);
-        } else if (method.returnsMap()) {
+        } else if (method.returnsMap()) {// 返回map
           result = executeForMap(sqlSession, args);
-        } else if (method.returnsCursor()) {
+        } else if (method.returnsCursor()) {// 返回cursor
           result = executeForCursor(sqlSession, args);
         } else {
+          // 我们 queryById 返回user对象，走到这里 ↓↓↓
+          // 参数解析成map
           Object param = method.convertArgsToSqlCommandParam(args);
+          // ↓↓↓ 注意这里 command.getName() 是mapperStatement 的id，后面获取mapperStatement需要，在前面 cachedInvoker方法中构造MapperMethod时注入，建议回头看看
           result = sqlSession.selectOne(command.getName(), param);
           if (method.returnsOptional() && (result == null || !method.getReturnType().equals(result.getClass()))) {
             result = Optional.ofNullable(result);
@@ -220,10 +229,13 @@ public class MapperMethod {
     private final SqlCommandType type;
 
     public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) {
+      // 方法名称 比如我的queryById
       final String methodName = method.getName();
       final Class<?> declaringClass = method.getDeclaringClass();
+      // 获取MappedStatement ↓↓↓
       MappedStatement ms = resolveMappedStatement(mapperInterface, methodName, declaringClass, configuration);
       if (ms == null) {
+        // MappedStatement没有，则看看方法是否有注解Flush
         if (method.getAnnotation(Flush.class) == null) {
           throw new BindingException(
               "Invalid bound statement (not found): " + mapperInterface.getName() + "." + methodName);
@@ -231,6 +243,7 @@ public class MapperMethod {
         name = null;
         type = SqlCommandType.FLUSH;
       } else {
+        // 这里name= 接口全限定名称 + 方法名称，后面有用
         name = ms.getId();
         type = ms.getSqlCommandType();
         if (type == SqlCommandType.UNKNOWN) {
@@ -249,6 +262,7 @@ public class MapperMethod {
 
     private MappedStatement resolveMappedStatement(Class<?> mapperInterface, String methodName, Class<?> declaringClass,
         Configuration configuration) {
+      // 通过全限定名称 + 方法名称从configuration中获取MappedStatement
       String statementId = mapperInterface.getName() + "." + methodName;
       if (configuration.hasStatement(statementId)) {
         return configuration.getMappedStatement(statementId);

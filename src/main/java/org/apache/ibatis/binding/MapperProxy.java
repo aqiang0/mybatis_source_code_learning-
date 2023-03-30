@@ -80,9 +80,11 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
+      // object类型方法，直接调用
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
       }
+      // 1、先从缓存中获取反射实例，毕竟反射耗性能 ↓↓↓，2、然后进入invoke方法看看具体SQL执行 ↓↓↓
       return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
     } catch (Throwable t) {
       throw ExceptionUtil.unwrapThrowable(t);
@@ -91,11 +93,14 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
   private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
     try {
+      // MapUtil.computeIfAbsent逻辑是 如果在参数1（map）中找到参数2则直接返回，如果没有则执行参数3的方法逻辑，并且把执行结果put到参数1
       return MapUtil.computeIfAbsent(methodCache, method, m -> {
         if (!m.isDefault()) {
+          // 非default方法，这里注意MapperMethod的构造，进去看看 ↓↓↓
           return new PlainMethodInvoker(new MapperMethod(mapperInterface, method, sqlSession.getConfiguration()));
         }
         try {
+          // 这里是jdk8和其他版本获取MethodInvoker不同，做兼容
           if (privateLookupInMethod == null) {
             return new DefaultMethodInvoker(getMethodHandleJava8(method));
           } else {
@@ -139,6 +144,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args, SqlSession sqlSession) throws Throwable {
+      // ↓↓↓
       return mapperMethod.execute(sqlSession, args);
     }
   }
