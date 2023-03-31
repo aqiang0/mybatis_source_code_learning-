@@ -77,7 +77,9 @@ public class PreparedStatementHandler extends BaseStatementHandler {
 
   @Override
   protected Statement instantiateStatement(Connection connection) throws SQLException {
+    // 获取SQL，这里是 select id, email, nick_name, pass_word, reg_time, user_name from user where id = ?
     String sql = boundSql.getSql();
+    // id自动生成
     if (mappedStatement.getKeyGenerator() instanceof Jdbc3KeyGenerator) {
       String[] keyColumnNames = mappedStatement.getKeyColumns();
       if (keyColumnNames == null) {
@@ -87,6 +89,7 @@ public class PreparedStatementHandler extends BaseStatementHandler {
       }
     }
     if (mappedStatement.getResultSetType() == ResultSetType.DEFAULT) {
+      // 这里就是原始jdbc操作了，获取prepareStatement
       return connection.prepareStatement(sql);
     } else {
       return connection.prepareStatement(sql, mappedStatement.getResultSetType().getValue(),

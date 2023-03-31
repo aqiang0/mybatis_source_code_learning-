@@ -58,6 +58,7 @@ public class XMLStatementBuilder extends BaseBuilder {
   public void parseStatementNode() {
     // 标签id 比如 queryById
     String id = context.getStringAttribute("id");
+    // 数据库厂商标识
     String databaseId = context.getStringAttribute("databaseId");
 
     if (!databaseIdMatchesCurrent(id, databaseId, this.requiredDatabaseId)) {
@@ -100,7 +101,7 @@ public class XMLStatementBuilder extends BaseBuilder {
           configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType))
               ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
     }
-    // 这里解析sql，把语句中的where、if标签解析，封装到SqlSource
+    // 这里解析sql，把语句中的where、if标签解析，封装到SqlSource ↓↓↓ XMLLanguageDriver.createSqlSource()
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
     // 以下属性获取，可参照 https://mybatis.org/mybatis-3/zh/sqlmap-xml.html#select-1
     StatementType statementType = StatementType

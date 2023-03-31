@@ -136,9 +136,9 @@ public class XMLConfigBuilder extends BaseBuilder {
       loadCustomVfs(settings);
       // 加载日志实现类
       loadCustomLogImpl(settings);
-      // 解析别名
+      // 解析别名 注入到typeAliasRegistry属性中，key=别名，value=class类型
       typeAliasesElement(root.evalNode("typeAliases"));
-      // 解析插件
+      // 解析插件 注入到 interceptorChain属性中
       pluginElement(root.evalNode("plugins"));
       // 每次 MyBatis 创建结果对象的新实例时，它都会使用一个对象工厂（ObjectFactory）实例来完成实例化工作。可以配置覆盖默认的
       objectFactoryElement(root.evalNode("objectFactory"));

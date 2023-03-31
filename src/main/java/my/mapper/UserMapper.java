@@ -3,6 +3,7 @@ package my.mapper;
 import my.entity.User;
 import org.apache.ibatis.annotations.Param;
 
+
 import java.awt.print.Pageable;
 import java.util.List;
 
@@ -26,10 +27,9 @@ public interface UserMapper {
      * 查询指定行数据
      *
      * @param user 查询条件
-     * @param pageable         分页对象
      * @return 对象列表
      */
-    List<User> queryAllByLimit(User user, @Param("pageable") Pageable pageable);
+    List<User> queryAll(User user);
 
     /**
      * 统计总行数

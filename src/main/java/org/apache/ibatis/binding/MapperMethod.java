@@ -82,7 +82,8 @@ public class MapperMethod {
         if (method.returnsVoid() && method.hasResultHandler()) {
           executeWithResultHandler(sqlSession, args);
           result = null;
-        } else if (method.returnsMany()) {// 返回多个
+        } else if (method.returnsMany()) {// 返回多个，这个在哪里判断的？也是在构造mapperMethod是注入的对象MethodSignature，入口在MapperProxy.cachedInvoker
+          // 我们queryAll 进入这里 ↓↓↓
           result = executeForMany(sqlSession, args);
         } else if (method.returnsMap()) {// 返回map
           result = executeForMap(sqlSession, args);
@@ -148,11 +149,14 @@ public class MapperMethod {
 
   private <E> Object executeForMany(SqlSession sqlSession, Object[] args) {
     List<E> result;
+    // 查询参数
     Object param = method.convertArgsToSqlCommandParam(args);
+    // 是否有分页
     if (method.hasRowBounds()) {
       RowBounds rowBounds = method.extractRowBounds(args);
       result = sqlSession.selectList(command.getName(), param, rowBounds);
     } else {
+      // ↓↓↓
       result = sqlSession.selectList(command.getName(), param);
     }
     // issue #510 Collections & arrays support

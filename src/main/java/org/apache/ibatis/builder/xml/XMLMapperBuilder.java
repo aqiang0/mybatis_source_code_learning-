@@ -58,7 +58,7 @@ public class XMLMapperBuilder extends BaseBuilder {
   private final XPathParser parser;
   private final MapperBuilderAssistant builderAssistant;
   private final Map<String, XNode> sqlFragments;
-  private final String resource;
+  private final String resource; //mapper.xml路径
 
   @Deprecated
   public XMLMapperBuilder(Reader reader, Configuration configuration, String resource, Map<String, XNode> sqlFragments,
@@ -97,7 +97,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   public void parse() {
     if (!configuration.isResourceLoaded(resource)) {
-      // 解析mapper标签
+      // 解析mapper标签<mapper><mapper/>
       configurationElement(parser.evalNode("/mapper"));
       // 解析完该mapper.xml，放进set集合中，表示已解析
       configuration.addLoadedResource(resource);
@@ -242,6 +242,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       // TODO 2023/3/28 17:07:28 mapper缓存属性blocking 待解决
       boolean blocking = context.getBooleanAttribute("blocking", false);
       Properties props = context.getChildrenAsProperties();
+      // 新建一个cache，放进configuration对象的caches属性中，key=namespace，value=cache
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
     }
   }
@@ -293,7 +294,7 @@ private void resultMapElements(List<XNode> list) {
   private ResultMap resultMapElement(XNode resultMapNode, List<ResultMapping> additionalResultMappings,
       Class<?> enclosingType) {
     ErrorContext.instance().activity("processing " + resultMapNode.getValueBasedIdentifier());
-    // 获取映射类型
+    // 获取映射类型<resultMap>标签的type属性
     String type = resultMapNode.getStringAttribute("type", resultMapNode.getStringAttribute("ofType",
         resultMapNode.getStringAttribute("resultType", resultMapNode.getStringAttribute("javaType"))));
     // 获取class类型
@@ -317,6 +318,7 @@ private void resultMapElements(List<XNode> list) {
         if ("id".equals(resultChild.getName())) {
           flags.add(ResultFlag.ID);
         }
+        // 这里把一个<result><result/>标签的属性解析，封装成一个ResultMapping
         resultMappings.add(buildResultMappingFromContext(resultChild, typeClass, flags));
       }
     }
@@ -326,6 +328,7 @@ private void resultMapElements(List<XNode> list) {
     ResultMapResolver resultMapResolver = new ResultMapResolver(builderAssistant, id, typeClass, extend, discriminator,
         resultMappings, autoMapping);
     try {
+      // 把所有的<resultMap>标签即List<ResultMapping> resultMappings封装成ResultMap注入到configuration中
       return resultMapResolver.resolve();
     } catch (IncompleteElementException e) {
       configuration.addIncompleteResultMap(resultMapResolver);

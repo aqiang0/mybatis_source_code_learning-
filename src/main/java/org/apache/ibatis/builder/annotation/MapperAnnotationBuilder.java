@@ -107,6 +107,7 @@ public class MapperAnnotationBuilder {
 
   public MapperAnnotationBuilder(Configuration configuration, Class<?> type) {
     String resource = type.getName().replace('.', '/') + ".java (best guess)";
+    // 注入了一个MapperBuilderAssistant 干啥用？
     this.assistant = new MapperBuilderAssistant(configuration, resource);
     this.configuration = configuration;
     this.type = type;
@@ -185,7 +186,7 @@ public class MapperAnnotationBuilder {
         // xml解析器解析生成XMLMapperBuilder
         XMLMapperBuilder xmlParser = new XMLMapperBuilder(inputStream, assistant.getConfiguration(), xmlResource,
             configuration.getSqlFragments(), type.getName());
-        // 解析mapper.xml ↓↓↓
+        // 开始解析mapper.xml ↓↓↓
         xmlParser.parse();
       }
     }

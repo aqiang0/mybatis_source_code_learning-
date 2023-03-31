@@ -20,7 +20,7 @@
     </select>
 
     <!--查询指定行数据-->
-    <select id="queryAllByLimit" resultMap="UserMap">
+    <select id="queryAll" resultMap="UserMap">
         select
           id, email, nick_name, pass_word, reg_time, user_name
         from user
@@ -44,7 +44,6 @@
                 and user_name = #{userName}
             </if>
         </where>
-        limit #{pageable.offset}, #{pageable.pageSize}
     </select>
 
     <!--统计总行数-->

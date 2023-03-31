@@ -54,9 +54,9 @@ import org.apache.ibatis.type.TypeHandler;
  */
 public class MapperBuilderAssistant extends BaseBuilder {
 
-  private String currentNamespace;
-  private final String resource;
-  private Cache currentCache;
+  private String currentNamespace;//当前解析的命名空间
+  private final String resource;// 命名空间的路径
+  private Cache currentCache; // 当前缓存
   private boolean unresolvedCacheRef; // issue #676
 
   public MapperBuilderAssistant(Configuration configuration, String resource) {
@@ -153,9 +153,11 @@ public class MapperBuilderAssistant extends BaseBuilder {
 
   public ResultMap addResultMap(String id, Class<?> type, String extend, Discriminator discriminator,
       List<ResultMapping> resultMappings, Boolean autoMapping) {
+    // 获取当前的Namespace
     id = applyCurrentNamespace(id, false);
+    // 标签的extend属性（没用过）
     extend = applyCurrentNamespace(extend, true);
-
+    // 有继承的resultMap，则获取父的resultMap，把父的所有属性添加到resultMappings，也就是给到子resultMap
     if (extend != null) {
       if (!configuration.hasResultMap(extend)) {
         throw new IncompleteElementException("Could not find a parent resultmap with id '" + extend + "'");
@@ -176,8 +178,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
       }
       resultMappings.addAll(extendedResultMappings);
     }
+    // 构造一个ResultMap对象，把所有的<result>标签即List<ResultMapping> resultMappings注入到ResultMap的resultMappings属性中
     ResultMap resultMap = new ResultMap.Builder(configuration, id, type, resultMappings, autoMapping)
         .discriminator(discriminator).build();
+    // 给configuration对象注入进去，key=namespace，value=resultMap
     configuration.addResultMap(resultMap);
     return resultMap;
   }
