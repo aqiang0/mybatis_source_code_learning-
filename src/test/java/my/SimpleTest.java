@@ -3,9 +3,11 @@ package my;
 import my.entity.User;
 import my.mapper.UserMapper;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.jdbc.SQL;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
 
 import java.awt.print.Pageable;
 import java.io.IOException;
@@ -34,5 +36,11 @@ public class SimpleTest {
     System.out.println(mapper.queryAll(user));
     sqlSession.commit();
     sqlSession.close();
+  }
+
+  @Test
+  public void test(){
+    SQL sql = new SQL().SELECT("*").FROM("user").WHERE("id = 1").ORDER_BY("createDate desc");
+    System.out.println(sql);
   }
 }

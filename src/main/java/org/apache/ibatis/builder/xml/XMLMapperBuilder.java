@@ -161,7 +161,7 @@ public class XMLMapperBuilder extends BaseBuilder {
         // 解析生成MappedStatement
         statementParser.parseStatementNode();
       } catch (IncompleteElementException e) {
-        // 这里是前面顺序解析时，无法解析的在这里重新解析一次
+        // 这里是前面顺序解析时，无法解析放进去这里
         configuration.addIncompleteStatement(statementParser);
       }
     }

@@ -67,7 +67,7 @@ public class XMLScriptBuilder extends BaseBuilder {
     MixedSqlNode rootSqlNode = parseDynamicTags(context);
     SqlSource sqlSource;
     if (isDynamic) {
-      // 动态标签，先不动
+      // 动态标签
       sqlSource = new DynamicSqlSource(configuration, rootSqlNode);
     } else {
       // 不是动态的，直接把#{}换成？ 比如： select * from user where id = #{id}  ==>  select * from user where id = ?
@@ -99,10 +99,12 @@ public class XMLScriptBuilder extends BaseBuilder {
         if (handler == null) {
           throw new BuilderException("Unknown element <" + nodeName + "> in SQL statement.");
         }
+        // 处理不同类型的动态标签
         handler.handleNode(child, contents);
         isDynamic = true;
       }
     }
+    // 最后contents内容 大概就是树形结构  where -> if
     return new MixedSqlNode(contents);
   }
 
@@ -148,6 +150,7 @@ public class XMLScriptBuilder extends BaseBuilder {
 
     @Override
     public void handleNode(XNode nodeToHandle, List<SqlNode> targetContents) {
+      // 这里相当于递归了
       MixedSqlNode mixedSqlNode = parseDynamicTags(nodeToHandle);
       WhereSqlNode where = new WhereSqlNode(configuration, mixedSqlNode);
       targetContents.add(where);
