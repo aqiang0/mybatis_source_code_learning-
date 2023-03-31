@@ -897,6 +897,7 @@ public class Configuration {
   }
 
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    // ↓↓↓
     return mapperRegistry.getMapper(type, sqlSession);
   }
 

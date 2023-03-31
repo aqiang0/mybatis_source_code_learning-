@@ -65,7 +65,7 @@ public class SimpleExecutor extends BaseExecutor {
           boundSql);
       // 这里获取到prepareStatement ↓↓↓
       stmt = prepareStatement(handler, ms.getStatementLog());
-      //
+      // 执行查询 这里最终走到 PreparedStatementHandler.query
       return handler.query(stmt, resultHandler);
     } finally {
       closeStatement(stmt);
