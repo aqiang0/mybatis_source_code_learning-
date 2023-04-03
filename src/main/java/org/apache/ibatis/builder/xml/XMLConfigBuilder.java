@@ -133,6 +133,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       // 把properties标签属性值解析到configuration和XPathParser属性variables中
       propertiesElement(root.evalNode("properties"));
       Properties settings = settingsAsProperties(root.evalNode("settings"));
+      // 虚拟文件加载系统
       loadCustomVfs(settings);
       // 加载日志实现类
       loadCustomLogImpl(settings);
@@ -438,6 +439,7 @@ private void typeAliasesElement(XNode parent) {
             try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
               XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource,
                   configuration.getSqlFragments());
+              // 解析mapper
               mapperParser.parse();
             }
           } else if (resource == null && url != null && mapperClass == null) {
@@ -445,6 +447,7 @@ private void typeAliasesElement(XNode parent) {
             try (InputStream inputStream = Resources.getUrlAsStream(url)) {
               XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url,
                   configuration.getSqlFragments());
+              // 解析mapper
               mapperParser.parse();
             }
           } else if (resource == null && url == null && mapperClass != null) {
