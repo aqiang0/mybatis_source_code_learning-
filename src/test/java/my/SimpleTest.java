@@ -30,10 +30,13 @@ public class SimpleTest {
     //获取Mapper，这里主要是代理生成mapper的代理对象
     UserMapper mapper = sqlSession.getMapper(UserMapper.class);
     // 1、单个返回user测试
-    User user = new User();
-    user.setId(1L);
-    user.setUserName("test");
-    System.out.println(mapper.queryAll(user));
+    //User user = new User();
+    //user.setId(1L);
+    //user.setUserName("test");
+    //System.out.println(mapper.queryAll(user));
+
+    System.out.println(mapper.queryById(1L));
+    System.out.println(mapper.queryById(1L));
     sqlSession.commit();
     sqlSession.close();
   }

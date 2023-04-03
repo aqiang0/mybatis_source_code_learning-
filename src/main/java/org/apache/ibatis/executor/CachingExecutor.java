@@ -72,6 +72,7 @@ public class CachingExecutor implements Executor {
 
   @Override
   public int update(MappedStatement ms, Object parameterObject) throws SQLException {
+    // 刷新缓存
     flushCacheIfRequired(ms);
     return delegate.update(ms, parameterObject);
   }
@@ -96,7 +97,7 @@ public class CachingExecutor implements Executor {
   @Override
   public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds, ResultHandler resultHandler,
       CacheKey key, BoundSql boundSql) throws SQLException {
-    // 获取MappedStatement的缓存，这里是二级缓存
+    // 获取MappedStatement的缓存标识，如果有开启缓存，cache不为null
     Cache cache = ms.getCache();
     if (cache != null) {
       // 刷新缓存，有些缓存时定时刷新
@@ -175,8 +176,10 @@ public class CachingExecutor implements Executor {
   }
 
   private void flushCacheIfRequired(MappedStatement ms) {
+    // 当前命名空间的缓存，相当于获取到缓存key
     Cache cache = ms.getCache();
     if (cache != null && ms.isFlushCacheRequired()) {
+      // 清除事务缓存
       tcm.clear(cache);
     }
   }

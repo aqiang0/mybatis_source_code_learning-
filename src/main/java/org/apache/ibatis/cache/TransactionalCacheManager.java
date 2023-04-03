@@ -26,6 +26,8 @@ import org.apache.ibatis.util.MapUtil;
  */
 public class TransactionalCacheManager {
 
+  // 二级缓存池，一个mapper作为一个entity，key=命名空间，value=TransactionalCache
+  // TransactionalCache中delegate属性是具体的缓存值，该cache也是一个map，key=为cacheKey对象，value为具体缓存值
   private final Map<Cache, TransactionalCache> transactionalCaches = new HashMap<>();
 
   public void clear(Cache cache) {
@@ -37,10 +39,15 @@ public class TransactionalCacheManager {
   }
 
   public void putObject(Cache cache, CacheKey key, Object value) {
+    // 这里cache通过命名空间标识，方法1获取到某一命名空间下的缓存，这里是cache.id=my.mapper.UserMapper
+    // 方法2把查询值放到待提交的缓存中
+    // 整个put的流程，1、通过MappedStatement获取到二级缓存唯一标识cache，这个cache是在解析mapper.xml的时候就注入进去了
+    // 2、通过cache获取到TransactionalCache，把结果放入待提交缓存即entriesToAddOnCommit
     getTransactionalCache(cache).putObject(key, value);
   }
 
   public void commit() {
+    // 什么时候调用呢？在sqlSession.close()调用时
     for (TransactionalCache txCache : transactionalCaches.values()) {
       txCache.commit();
     }

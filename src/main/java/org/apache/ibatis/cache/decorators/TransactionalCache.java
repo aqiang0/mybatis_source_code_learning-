@@ -39,9 +39,13 @@ public class TransactionalCache implements Cache {
 
   private static final Log log = LogFactory.getLog(TransactionalCache.class);
 
+  // 真实的二级缓存 PerpetualCache
   private final Cache delegate;
+  // 是否提交事务
   private boolean clearOnCommit;
+  // 待提交缓存
   private final Map<Object, Object> entriesToAddOnCommit;
+  // 未命中缓存
   private final Set<Object> entriesMissedInCache;
 
   public TransactionalCache(Cache delegate) {
@@ -63,12 +67,13 @@ public class TransactionalCache implements Cache {
 
   @Override
   public Object getObject(Object key) {
-    // issue #116
+    // issue #116 缓存中获取值
     Object object = delegate.getObject(key);
+    // 没获取到数据，放入未命中缓存池中
     if (object == null) {
       entriesMissedInCache.add(key);
     }
-    // issue #146
+    // issue #146 如果事务已提交，返回空，因为得刷新缓存
     if (clearOnCommit) {
       return null;
     }
@@ -77,6 +82,7 @@ public class TransactionalCache implements Cache {
 
   @Override
   public void putObject(Object key, Object object) {
+    // 先把缓存放到未提交池中，待提交时commit()时再把未提交池的数据刷新到delegate
     entriesToAddOnCommit.put(key, object);
   }
 
@@ -92,6 +98,7 @@ public class TransactionalCache implements Cache {
   }
 
   public void commit() {
+    // 事务提交，1、先清除二级缓存 2、把掉提交池的缓存刷新到二级缓存中 3、重置二级缓存属性，清空待提交池，未命中池
     if (clearOnCommit) {
       delegate.clear();
     }
@@ -100,6 +107,7 @@ public class TransactionalCache implements Cache {
   }
 
   public void rollback() {
+    // 事务回滚，把未命中池的有的删掉
     unlockMissedEntries();
     reset();
   }
