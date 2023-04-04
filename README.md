@@ -9,7 +9,7 @@
 ### idea使用小技巧
 - ctr + B 查看类和方法在哪里被使用；ctr + alt + B 查看类和方法的实现类，不会跳到接口，一步到位。
 - ctr + alt + ← 返回上一步； ctr + alt + → 下一步  基本可以告别鼠标。
-### [1 构建.md](doc/1 构建.md)
+### [1 构建.md](https://github.com/aqiang0/mybatis_source_code_learning-/blob/master/doc/1%20%E6%9E%84%E5%BB%BA.md)
 #### 1 解析mybatis-config.xml文件   
 这一步主要是解析mybatis-config.xml文件，解析<configuration/>标签内容，把解析数据注入到Configuration对象对应属性中，解析属性包括：  
 - properties（属性）
