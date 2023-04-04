@@ -70,8 +70,11 @@ public class XMLStatementBuilder extends BaseBuilder {
     SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
     // 是否select语句
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
+    // 将其设置为 true 后，只要语句被调用，都会导致本地缓存和二级缓存被清空，默认值：false。
     boolean flushCache = context.getBooleanAttribute("flushCache", !isSelect);
+    // 将其设置为 true 后，将会导致本条语句的结果被二级缓存缓存起来，默认值：对 select 元素为 true。
     boolean useCache = context.getBooleanAttribute("useCache", isSelect);
+    // 这个设置仅针对嵌套结果 select 语句
     boolean resultOrdered = context.getBooleanAttribute("resultOrdered", false);
 
     // Include Fragments before parsing
@@ -91,6 +94,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     processSelectKeyNodes(id, parameterTypeClass, langDriver);
 
     // Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
+    // 主键自增配置
     KeyGenerator keyGenerator;
     String keyStatementId = id + SelectKeyGenerator.SELECT_KEY_SUFFIX;
     keyStatementId = builderAssistant.applyCurrentNamespace(keyStatementId, true);
@@ -110,8 +114,10 @@ public class XMLStatementBuilder extends BaseBuilder {
     // 驱动程序等待数据库返回请求结果的秒数
     Integer timeout = context.getIntAttribute("timeout");
     String parameterMap = context.getStringAttribute("parameterMap");
+    // 结果映射类型，最后还是会解析成resultMap
     String resultType = context.getStringAttribute("resultType");
     Class<?> resultTypeClass = resolveClass(resultType);
+    // 结果映射
     String resultMap = context.getStringAttribute("resultMap");
     if (resultTypeClass == null && resultMap == null) {
       resultTypeClass = MapperAnnotationBuilder.getMethodReturnType(builderAssistant.getCurrentNamespace(), id);

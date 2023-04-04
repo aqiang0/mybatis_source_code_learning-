@@ -96,11 +96,13 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+    // 判断该mapper是否已经解析过
     if (!configuration.isResourceLoaded(resource)) {
       // 解析mapper标签<mapper><mapper/>
       configurationElement(parser.evalNode("/mapper"));
       // 解析完该mapper.xml，放进set集合中，表示已解析
       configuration.addLoadedResource(resource);
+      // 解析完把该mapper接口注册到Configuration对象中，就是把该mapper接口放到Configuration的mapperRegistry属性中，该属性对象有关键map类型属性knownMappers
       bindMapperForNamespace();
     }
     // 重新解析之前有问题的标签
@@ -161,7 +163,7 @@ public class XMLMapperBuilder extends BaseBuilder {
         // 解析生成MappedStatement
         statementParser.parseStatementNode();
       } catch (IncompleteElementException e) {
-        // 这里是前面顺序解析时，无法解析放进去这里
+        // 这里是前面顺序解析时，无法解析放进去这里，比如引用了<sql>标签，但是<sql>标签写在后面
         configuration.addIncompleteStatement(statementParser);
       }
     }
@@ -328,7 +330,7 @@ private void resultMapElements(List<XNode> list) {
     ResultMapResolver resultMapResolver = new ResultMapResolver(builderAssistant, id, typeClass, extend, discriminator,
         resultMappings, autoMapping);
     try {
-      // 把所有的<resultMap>标签即List<ResultMapping> resultMappings封装成ResultMap注入到configuration中
+      // 把所有的<resultMap>标签即List<ResultMapping> resultMappings 封装成ResultMap注入到configuration中
       return resultMapResolver.resolve();
     } catch (IncompleteElementException e) {
       configuration.addIncompleteResultMap(resultMapResolver);

@@ -424,18 +424,20 @@ private void typeAliasesElement(XNode parent) {
 
   private void mapperElement(XNode parent) throws Exception {
     if (parent != null) {
-      // mapper映射器的写法 package、resource、url、class优先级从高到低
+      // mapper映射器的写法 package优先级高于resource、url、class
       for (XNode child : parent.getChildren()) {
         if ("package".equals(child.getName())) {
           // 解析package写法mapper，获取到mapper包名，其他写法类似
           String mapperPackage = child.getStringAttribute("name");
           configuration.addMappers(mapperPackage);
         } else {
+          //resource、url、class 只能有一个
           String resource = child.getStringAttribute("resource");
           String url = child.getStringAttribute("url");
           String mapperClass = child.getStringAttribute("class");
           if (resource != null && url == null && mapperClass == null) {
             ErrorContext.instance().resource(resource);
+            // 加载文件
             try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
               XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource,
                   configuration.getSqlFragments());

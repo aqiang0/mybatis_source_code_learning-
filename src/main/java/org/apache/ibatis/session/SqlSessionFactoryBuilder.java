@@ -77,9 +77,9 @@ public class SqlSessionFactoryBuilder {
 
   public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
     try {
-      // 加载mybatis-config.xml文件
+      // 这里面主要是XPathParser类对mybatis-config.xml文件进行SAX解析，生成Document对象
       XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
-      // 解析配置文件 ↓↓↓
+      // 解析配置文件 重点看parse()方法 ↓↓↓
       return build(parser.parse());
     } catch (Exception e) {
       throw ExceptionFactory.wrapException("Error building SqlSession.", e);

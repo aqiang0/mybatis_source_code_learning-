@@ -24,8 +24,11 @@
   </environments>
 
   <mappers>
-    <!--        <mapper resource="my/mapper/UserMapper.xml"/>-->
-    <!--        使用package，接口和xml必须在同一个包内-->
+    <!-- <mapper resource="my/mapper/UserMapper.xml"/>-->
+    <!--  <mapper class="my.mapper.UserMapper"></mapper>-->
+    <!-- 使用完全限定资源定位符（URL）一般用于远程资源-->
+    <!--  <mapper url="file:///var/mapper/UserMapper.xml"/>-->
+    <!--使用package，接口和xml必须在同一个包内-->
     <package name="my/mapper"/>
   </mappers>
 
