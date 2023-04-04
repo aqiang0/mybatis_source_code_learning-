@@ -103,7 +103,7 @@ public class XMLConfigBuilder extends BaseBuilder {
   }
 
   public Configuration parse() {
-    // 判断是否解析过
+    // 判断当前类是否被使用过了
     if (parsed) {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
     }
@@ -275,6 +275,7 @@ private void typeAliasesElement(XNode parent) {
       Properties defaults = context.getChildrenAsProperties();
       String resource = context.getStringAttribute("resource");
       String url = context.getStringAttribute("url");
+      // properties标签中resource属性和url属性只能有一个
       if (resource != null && url != null) {
         throw new BuilderException(
             "The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
@@ -288,6 +289,7 @@ private void typeAliasesElement(XNode parent) {
       if (vars != null) {
         defaults.putAll(vars);
       }
+      // 把属性注入到configuration对象中
       parser.setVariables(defaults);
       configuration.setVariables(defaults);
     }

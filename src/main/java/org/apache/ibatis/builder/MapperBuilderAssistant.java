@@ -153,15 +153,16 @@ public class MapperBuilderAssistant extends BaseBuilder {
 
   public ResultMap addResultMap(String id, Class<?> type, String extend, Discriminator discriminator,
       List<ResultMapping> resultMappings, Boolean autoMapping) {
-    // 获取当前的Namespace
+    // 获取当前的Namespace，前面刚刚开始解析的时候设置值为当前namespace值，这里id=namespace+id
     id = applyCurrentNamespace(id, false);
-    // 标签的extend属性（没用过）
+    // 标签的extend属性，继承属性，如果有两resultMap标签，可通过该属性，让其中一个继承另外一个，即可拥有它的属性
     extend = applyCurrentNamespace(extend, true);
     // 有继承的resultMap，则获取父的resultMap，把父的所有属性添加到resultMappings，也就是给到子resultMap
     if (extend != null) {
       if (!configuration.hasResultMap(extend)) {
         throw new IncompleteElementException("Could not find a parent resultmap with id '" + extend + "'");
       }
+      // 这个extend值为父标签id
       ResultMap resultMap = configuration.getResultMap(extend);
       List<ResultMapping> extendedResultMappings = new ArrayList<>(resultMap.getResultMappings());
       extendedResultMappings.removeAll(resultMappings);
@@ -178,10 +179,10 @@ public class MapperBuilderAssistant extends BaseBuilder {
       }
       resultMappings.addAll(extendedResultMappings);
     }
-    // 构造一个ResultMap对象，把所有的<result>标签即List<ResultMapping> resultMappings注入到ResultMap的resultMappings属性中
+    // 构造一个ResultMap对象，把所有的<result>标签封装成ResultMapping即List<ResultMapping> resultMappings注入到ResultMap的resultMappings属性中
     ResultMap resultMap = new ResultMap.Builder(configuration, id, type, resultMappings, autoMapping)
         .discriminator(discriminator).build();
-    // 给configuration对象注入进去，key=namespace，value=resultMap
+    // 给configuration对象注入进去，key=namespace+id，value=resultMap
     configuration.addResultMap(resultMap);
     return resultMap;
   }
@@ -210,7 +211,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
     // MappedStatement的id，是mapper.xml的Namespace+语句id；也就是mapper接口中全限定名称+方法名称 比如 my.mapper.UserMapper.queryById
     id = applyCurrentNamespace(id, false);
-
+    // 构造者模式新建一个MappedStatement
     MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlSource, sqlCommandType)
         .resource(resource).fetchSize(fetchSize).timeout(timeout).statementType(statementType)
         .keyGenerator(keyGenerator).keyProperty(keyProperty).keyColumn(keyColumn).databaseId(databaseId).lang(lang)
