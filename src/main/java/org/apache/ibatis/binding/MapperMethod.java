@@ -249,6 +249,7 @@ public class MapperMethod {
       } else {
         // 这里name= 接口全限定名称 + 方法名称，后面有用
         name = ms.getId();
+        // 获取mapperStatement执行类型，在解析配置文件时注入的属性
         type = ms.getSqlCommandType();
         if (type == SqlCommandType.UNKNOWN) {
           throw new BindingException("Unknown execution method for: " + name);

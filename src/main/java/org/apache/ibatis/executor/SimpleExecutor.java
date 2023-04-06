@@ -63,7 +63,7 @@ public class SimpleExecutor extends BaseExecutor {
       // 获取封装类 StatementHandler
       StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler,
           boundSql);
-      // 这里获取到prepareStatement ↓↓↓
+      // 这里获取到prepareStatement ↓↓↓ 这里把？换成了参数值
       stmt = prepareStatement(handler, ms.getStatementLog());
       // 执行查询 这里最终走到 PreparedStatementHandler.query
       return handler.query(stmt, resultHandler);

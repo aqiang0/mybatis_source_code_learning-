@@ -188,7 +188,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   @Override
   public List<Object> handleResultSets(Statement stmt) throws SQLException {
     ErrorContext.instance().activity("handling results").object(mappedStatement.getId());
-
+    // 保存最后映射完成的数据结果
     final List<Object> multipleResults = new ArrayList<>();
 
     int resultSetCount = 0;
@@ -221,7 +221,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         resultSetCount++;
       }
     }
-    // 返回list
+    // 返回list，如果多条数据，返回list的第一个
     return collapseSingleResultList(multipleResults);
   }
 
@@ -301,13 +301,14 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private void handleResultSet(ResultSetWrapper rsw, ResultMap resultMap, List<Object> multipleResults,
       ResultMapping parentMapping) throws SQLException {
     try {
+      // parentMapping表示嵌套映射
       if (parentMapping != null) {
         handleRowValues(rsw, resultMap, null, RowBounds.DEFAULT, parentMapping);
       } else if (resultHandler == null) {
         // ↓↓↓ 结果映射
         DefaultResultHandler defaultResultHandler = new DefaultResultHandler(objectFactory);
         handleRowValues(rsw, resultMap, defaultResultHandler, rowBounds, null);
-        // 把结果放进multipleResults
+        // 前面一步把映射结果放到了defaultResultHandler属性list中，这里直接去并且把结果放进multipleResults
         multipleResults.add(defaultResultHandler.getResultList());
       } else {
         handleRowValues(rsw, resultMap, resultHandler, rowBounds, null);

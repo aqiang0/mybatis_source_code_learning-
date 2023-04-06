@@ -18,7 +18,7 @@
         select
           id, email, nick_name, pass_word, reg_time, user_name
         from user
-        where id = ${id}
+        where id = #{id}
     </select>
 
     <!--查询指定行数据-->
