@@ -113,15 +113,20 @@ public class TransactionalCache implements Cache {
   }
 
   private void reset() {
+    // 重置操作
     clearOnCommit = false;
+    // 清空未提交
     entriesToAddOnCommit.clear();
+    // 清空为命中
     entriesMissedInCache.clear();
   }
 
   private void flushPendingEntries() {
+    // 把待提交缓存数据刷新到真实的缓存中
     for (Map.Entry<Object, Object> entry : entriesToAddOnCommit.entrySet()) {
       delegate.putObject(entry.getKey(), entry.getValue());
     }
+    // 未命中的缓存也放到二级缓存中，值为null
     for (Object entry : entriesMissedInCache) {
       if (!entriesToAddOnCommit.containsKey(entry)) {
         delegate.putObject(entry, null);
@@ -129,6 +134,7 @@ public class TransactionalCache implements Cache {
     }
   }
 
+  // 清空未命中缓存
   private void unlockMissedEntries() {
     for (Object entry : entriesMissedInCache) {
       try {

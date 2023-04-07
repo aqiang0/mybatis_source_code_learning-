@@ -38,6 +38,7 @@ public class TransactionalCacheManager {
     return getTransactionalCache(cache).getObject(key);
   }
 
+  // cache：标识当前namespace，cacheKey：标识当前SQL，value：查询的值
   public void putObject(Cache cache, CacheKey key, Object value) {
     // 这里cache通过命名空间标识，方法1获取到某一命名空间下的缓存，这里是cache.id=my.mapper.UserMapper
     // 方法2把查询值放到待提交的缓存中
