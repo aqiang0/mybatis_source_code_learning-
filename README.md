@@ -43,6 +43,8 @@
 把查询结果映射到定义的实体类中  
 
 ---
-### 3、缓存
+### [3、缓存](https://github.com/aqiang0/mybatis_source_code_learning-/blob/master/doc/3%20%E7%BC%93%E5%AD%98.md)
 #### 1 一级缓存，二级缓存
-#### 2 事务中缓存的问题
+#### 2 mybatis缓存问题
+
+---
